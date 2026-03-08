@@ -18,6 +18,7 @@ class TransactionTests(TestCase):
         self.account = BankAccount.objects.create(
             user=self.user,
             account_type='savings'
+            account_number='BANK000000001'
         )
         # Login and set token
         response = self.client.post('/api/auth/login/', {
@@ -67,6 +68,7 @@ class TransactionTests(TestCase):
         account2 = BankAccount.objects.create(
             user=self.user,
             account_type='current'
+            account_number='BANK000000002'
         )
         response = self.client.post('/api/transactions/transfer/', {
             'from_account_id': str(self.account.id),
