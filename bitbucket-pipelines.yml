@@ -1,0 +1,75 @@
+image: python:3.12-slim
+
+definitions:
+  services:
+    postgres:
+      image: postgres:15
+      environment:
+        POSTGRES_DB: banking_db_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: password
+    redis:
+      image: redis:7
+    rabbitmq:
+      image: rabbitmq:3-management
+
+pipelines:
+  default:
+    - step:
+        name: Test
+        services:
+          - postgres
+          - redis
+          - rabbitmq
+        caches:
+          - pip
+        script:
+          - pip install -r requirements.txt
+          - export DATABASE_URL=postgresql://postgres:password@localhost:5432/banking_db_test
+          - export REDIS_URL=redis://localhost:6379/0
+          - export RABBITMQ_URL=amqp://guest:guest@localhost:5672//
+          - export SECRET_KEY=test-secret-key-for-ci
+          - export JWT_SECRET_KEY=test-jwt-secret-key-for-ci
+          - export DEBUG=True
+          - python manage.py migrate
+          - python manage.py test
+
+  branches:
+    main:
+      - step:
+          name: Test
+          services:
+            - postgres
+            - redis
+            - rabbitmq
+          caches:
+            - pip
+          script:
+            - pip install -r requirements.txt
+            - export DATABASE_URL=postgresql://postgres:password@localhost:5432/banking_db_test
+            - export REDIS_URL=redis://localhost:6379/0
+            - export RABBITMQ_URL=amqp://guest:guest@localhost:5672//
+            - export SECRET_KEY=test-secret-key-for-ci
+            - export JWT_SECRET_KEY=test-jwt-secret-key-for-ci
+            - export DEBUG=True
+            - python manage.py migrate
+            - python manage.py test
+
+      - step:
+          name: Build Docker Image
+          services:
+            - docker
+          script:
+            - docker build -t banking-api .
+            - echo "Docker build successful"
+
+      - step:
+          name: Deploy to Fly.io
+          deployment: production
+          script:
+            - apt-get update && apt-get install -y curl
+            - curl -L https://fly.io/install.sh | sh
+            - export PATH="$HOME/.fly/bin:$PATH"
+            - flyctl deploy --remote-only
+          environment:
+            FLY_API_TOKEN: $FLY_API_TOKEN
