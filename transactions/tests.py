@@ -67,7 +67,7 @@ class TransactionTests(TestCase):
         self.account.save()
         account2 = BankAccount.objects.create(
             user=self.user,
-            account_type='current'
+            account_type='current',
             account_number='BANK000000002'
         )
         response = self.client.post('/api/transactions/transfer/', {
