@@ -38,8 +38,8 @@ class AuthTests(TestCase):
             'password': 'Test@1234'
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
-        self.assertIn('refresh', response.data)
+        self.assertIn('access_token', response.data)
+        self.assertIn('refresh_token', response.data)
 
     def test_login_wrong_password(self):
         User.objects.create_user(

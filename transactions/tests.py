@@ -25,7 +25,7 @@ class TransactionTests(TestCase):
             'password': 'Test@1234'
         })
         self.client.credentials(
-            HTTP_AUTHORIZATION=f"Bearer {response.data['access']}"
+            HTTP_AUTHORIZATION=f"Bearer {response.data['access_token']}"
         )
 
     @patch('notifications.tasks.send_transaction_notification.delay')
