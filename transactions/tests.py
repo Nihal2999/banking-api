@@ -17,7 +17,7 @@ class TransactionTests(TestCase):
         )
         self.account = BankAccount.objects.create(
             user=self.user,
-            account_type='savings'
+            account_type='savings',
             account_number='BANK000000001'
         )
         # Login and set token
